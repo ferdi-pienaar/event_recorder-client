@@ -1,43 +1,31 @@
 /*
  *
  */
+#include "consumer.h"
+#include "event.h"
+#include "operator.h"
+#include "operator_helper.h"
+#include "producer.h"
 #include "record_table.h"
 #include "record_table_manager.h"
 #include <iostream>
 
-void dump_table_state_cb(const Event_record::Table_op_itf &t)
-{
-    std::cout << "size " << t.size() << std::endl;
-    std::cout << "enabled " << t.enabled() << std::endl;
-    std::cout << "oneshot " << t.oneshot() << std::endl;
-    std::cout << "written entries " << t.get_num_written_entries() << std::endl;
-    std::cout << "stopped " << t.is_stopped() << std::endl;
-}
-
-void dump_entry(const int &entry)
-{
-    std::cout << entry << std::endl;
-}
-
-void operator_out(const std::string &msg)
-{
-    std::cout << msg;
-}
+using namespace Event_record;
 
 int main(int argc, char *argv[])
 {
-    Event_record::Table<int> itable(Event_record::Table_init_config().size(2).enable(), dump_entry,
-                                    dump_table_state_cb);
-    Event_record::Table_manager table_mgr({{"int_table", itable}}, operator_out);
+    Table<Event> ttable(Table_init_config().size(20).enable(), dump_event_cb, dump_table_state_cb);
+    Table_manager table_mgr({{"time", ttable}}, operator_out_cb);
 
-    itable.get_write_entry() = 1;
-    itable.get_write_entry() = 121;
+    EventMsgQueue msg_queue;
 
-    // Lambda returns true always, i.e. apply command to all tables.
-    auto matcher = [](const std::string &name) { return true; };
+    Producer tx(ttable, msg_queue);
+    tx.start();
 
-    table_mgr.enable_tables(matcher, false);
-    table_mgr.dump_tables_state(matcher);
-    table_mgr.dump_tables(matcher);
+    Consumer rx(msg_queue);
+    rx.start();
+
+    Operator oper(table_mgr);
+    oper.run();
     return 0;
 }
