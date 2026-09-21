@@ -1,26 +1,25 @@
 /*
  */
 #include "consumer.h"
+#include "event.h"
+#include "message.h"
 #include "record_table_event_itf.h"
-#include <iostream>
-#include <pthread.h>
-#include <unistd.h> // sleep
+#include <chrono>
+
+using namespace std::chrono;
 
 void Consumer::start()
 {
-    pthread_t thread;
-    pthread_create(&thread, nullptr, &thread_entry, this);
+    m_thread = std::thread(&Consumer::thread_entry, this);
 }
 
-void *Consumer::thread_entry(void *arg)
+void Consumer::thread_entry()
 {
-    auto self = static_cast<Consumer *>(arg);
     while (true)
     {
-        sleep(5);
-        self->receive();
+        std::this_thread::sleep_for(milliseconds(4500));
+        receive();
     }
-    return nullptr;
 }
 
 void Consumer::receive()
@@ -31,6 +30,7 @@ void Consumer::receive()
     {
         // std::cout << "RX: " << msg->id << std::endl;
         msg->event->end();
+
         // Free msg that was allocated by the consumer.
         delete (msg);
     }

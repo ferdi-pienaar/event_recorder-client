@@ -4,26 +4,21 @@
  */
 #include "operator_helper.h"
 #include "record_table_op_itf.h"
+#include <iomanip>
 #include <iostream>
 #include <string>
 
 using namespace Event_record;
-
-static double diff_timespec(const timespec &t0, const timespec &t1)
-{
-    return (t1.tv_sec - t0.tv_sec) + 1.0e-9 * (t1.tv_nsec - t0.tv_nsec);
-}
+using namespace std::chrono;
 
 void dump_event_cb(const Event &event)
 {
-    for (auto const &t : event.stamp)
-    {
-        std::cout << t.tv_sec << "." << t.tv_nsec << std::endl;
-    }
-    if (!((event.stamp[1].tv_sec == 0) && (event.stamp[1].tv_nsec == 0)))
+    if (event.m_end)
     {
         // 'end' entry has been written, so show diff.
-        std::cout << "elapsed: " << diff_timespec(event.stamp[0], event.stamp[1]) << std::endl;
+        auto elapsed = duration_cast<nanoseconds>(event.stamp[1] - event.stamp[0]);
+        std::cout << "elapsed [ns]: " << std::setfill('0') << std::setw(10) << elapsed.count()
+                  << std::endl;
     }
     else
     {

@@ -1,6 +1,7 @@
 /*
  */
-#include "event.h"
+#include "queue.h"
+#include <thread>
 
 namespace Event_record
 {
@@ -15,9 +16,9 @@ public:
     void start();
 
 private:
-    static void *thread_entry(void *);
+    void thread_entry();
     void receive();
-    void end_event(Event &event);
 
     EventMsgQueue &m_queue;
+    std::thread m_thread;
 };

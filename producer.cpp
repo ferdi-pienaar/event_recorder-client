@@ -1,27 +1,27 @@
 /*
  */
 #include "producer.h"
+#include "message.h"
 #include "record_table_event_itf.h"
+#include <chrono>
 #include <iostream>
-#include <pthread.h>
-#include <unistd.h> // sleep
+
+using namespace std::chrono;
 
 void Producer::start()
 {
-    pthread_t thread;
-    pthread_create(&thread, nullptr, &thread_entry, this);
+    m_thread = std::thread(&Producer::thread_entry, this);
 }
 
-void *Producer::thread_entry(void *arg)
+void Producer::thread_entry()
 {
-    auto self = static_cast<Producer *>(arg);
-
     while (true)
     {
-        sleep(1);
-        self->send();
+        auto next_send_time = steady_clock::now() + milliseconds(1000);
+        send();
+        // Try to start the next event 1 sec after this one, regardles of how long send took.
+        std::this_thread::sleep_until(next_send_time);
     }
-    return nullptr;
 }
 
 void Producer::send()
@@ -31,16 +31,16 @@ void Producer::send()
 
     // msg will freed by the consumer.
     Message *msg = new Message(event);
-
+    // std::cout << "TX " << msg->id << std::endl;
     bool sent = false;
     do
     {
-        // If queue is full, wait and try again, since the consumer may have emptied the queue.
+        // If queue is full, wait for the consumer to empty the queue and try again.
         sent = m_queue.enq(msg);
         if (not sent)
         {
             // std::cout << "TX " << msg->id << " failed: sleep and try again." << std::endl;
-            sleep(1);
+            std::this_thread::sleep_for(milliseconds(500));
         }
     } while (not sent);
 }

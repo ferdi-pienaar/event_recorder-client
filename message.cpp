@@ -1,6 +1,7 @@
 /*
  *
  */
+#include "buf_pool.h"
 #include "event.h"
 #include <new> // bad_alloc
 
