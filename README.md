@@ -8,6 +8,8 @@ The producer thread creates an event and writes the begin-time of event-processi
 
 The operator can display the recorded events, showing the varying delays between the beginning and end of event-handling.
 
+The following diagram shows the three used libraries, in their namespaces Event_record, SeqBufPool, and StreamQueue.
+
 ```mermaid
 ---
 config:
@@ -25,13 +27,20 @@ classDiagram
     Consumer --> Event : writes to
     Producer --> Message : allocates and sends
     Consumer --> Message : receives and frees
-    Message --> EventMsgPool : allocates memory from
+    Message --> Event : carries reference to
 
     namespace Event_record {
         class TableManager
         class Table
     }
 
+    namespace SeqBufPool { class Pool }
+    namespace StreamQueue { class queue }
+
+    EventMsgPool --|> Pool
+    EventMsgQueue --|> queue
+
+    Message --> EventMsgPool : allocates memory from
     TableManager --> Table : manages
     Producer --> Table : gets Event from
     Operator --> TableManager : displays and manages Table
