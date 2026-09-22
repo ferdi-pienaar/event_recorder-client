@@ -5,6 +5,7 @@
 #include "message.h"
 #include "record_table_event_itf.h"
 #include <chrono>
+#include <iostream>
 
 using namespace std::chrono;
 

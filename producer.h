@@ -21,7 +21,8 @@ public:
 
 private:
     void thread_entry();
-    void send();
+    void produce_event();
+    bool send(Message *);
 
     Event_record::Table_event_itf<Event> &m_event_table;
     EventMsgQueue &m_queue;
