@@ -1,5 +1,7 @@
 /*
  */
+#pragma once
+
 #include "event.h"
 #include "queue.h"
 #include <thread>

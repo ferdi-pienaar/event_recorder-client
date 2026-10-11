@@ -28,11 +28,12 @@ void dump_event_cb(const Event &event)
 
 void dump_table_state_cb(const Table_op_itf &t)
 {
-    std::cout << "size " << t.size() << std::endl;
-    std::cout << "enabled " << t.enabled() << std::endl;
-    std::cout << "oneshot " << t.oneshot() << std::endl;
-    std::cout << "written entries " << t.get_num_written_entries() << std::endl;
-    std::cout << "stopped " << t.is_stopped() << std::endl;
+    std::cout << std::boolalpha;
+    std::cout << "size: " << t.size() << std::endl;
+    std::cout << "enabled: " << t.enabled() << std::endl;
+    std::cout << "oneshot: " << t.oneshot() << std::endl;
+    std::cout << "written entries: " << t.get_num_written_entries() << std::endl;
+    std::cout << "stopped: " << t.is_stopped() << std::endl;
 }
 
 void operator_out_cb(const std::string &msg)

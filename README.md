@@ -23,6 +23,7 @@ classDiagram
     Table *--> Event
     Producer --> EventMsgQueue : sends Messages to
     Consumer --> EventMsgQueue : receives Messages from
+    EventMsgQueue --> Message : carries reference to
     Producer --> Event : writes to
     Consumer --> Event : writes to
     Producer --> Message : allocates and sends

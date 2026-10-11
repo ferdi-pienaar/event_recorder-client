@@ -1,6 +1,7 @@
 /*
  * Helper functions used by the operator that manages and dumps the record tables.
  */
+#pragma once
 #include "event.h"
 #include <string>
 
